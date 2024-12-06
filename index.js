@@ -1,17 +1,19 @@
-// index.js
-const express = require('express')
-const app = express()
-const PORT = 4000
+const { chromium } = require('playwright');
 
+async function scrapeWebsite() {
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+    await page.goto('https://draw3d.aneta-karol.pl/render3D/1');
 
-app.get('/home', (req, res) => {
-  res.status(200).json('Welcome, your app is working well');
-})
+    // Wait for the div with id 'imageBase64' to appear
+    await page.waitForSelector('#imageBase64');
 
+    // Extract the content of the div
+    const divContent = await page.$eval('#imageBase64', div => div.textContent || div.innerHTML);
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+    console.log(divContent);
 
-// Export the Express API
-module.exports = app
+    await browser.close();
+}
+
+scrapeWebsite();
